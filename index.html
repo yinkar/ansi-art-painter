@@ -1,0 +1,127 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ANSI Art Painter</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2018%2018'%3E%3Ctext%20x='0'%20y='14'%3E🎨%3C/text%3E%3C/svg%3E" type="image/svg+xml" />
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            -webkit-tap-highlight-color: transparent;
+            -webkit-touch-callout: none;
+            outline: none
+        }
+        html, body {
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            background-color: #111;
+            display: flex;
+            justify-content: center;
+            padding-top: 50px;
+            flex-direction: row-reverse;
+            font-family: sans-serif;
+            visibility: hidden;
+        }
+
+        body.render {
+            visibility: visible;
+        }
+
+        canvas {
+            display: block;
+            border: 2px solid #444;
+        }
+
+        .color-panel {
+        
+        }
+
+        .color-palette {
+            display: flex;
+            width: 256px;
+            flex-wrap: wrap;
+            box-sizing: border-box;
+        }
+
+        .cp-cell {
+            width: 16px;
+            height: 16px;
+            cursor: pointer;
+            box-sizing: border-box;
+            padding: 2px;
+            border: 2px solid #000;
+        }
+
+        .cp-cell:hover {
+            border: 2px solid #ddd;
+        }
+
+        .current-bg-color {
+            width: 32px;
+            height: 32px;
+            border: 3px solid #777;
+            margin: 16px;
+            margin: 10px auto;
+        }
+
+        .buttons > a {
+            display: block;
+            padding: 10px 20px;
+            background-color: firebrick;
+            color: #fff;
+            font-size: 1.2em;
+            box-sizing: border-box;
+            cursor: pointer;
+            outline: none;
+            width: 50%;
+            transition: 100ms ease-in-out background-color;
+            text-decoration: none;
+            text-align: center;
+        }
+
+        .buttons > a:not(:last-child) {
+            border-right: 1px solid tomato;
+        }
+
+        .buttons > a:hover {
+            background-color: tomato;
+        }
+
+        .buttons {
+            display: flex;
+            margin-top: 15px;
+        }
+
+        textarea#output {
+            background-color: #222;
+            color: #fff;
+            padding: 10px;
+            box-sizing: border-box;
+            height: 155px;
+        }
+    </style>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js"></script>
+  </head>
+  <body>
+    <div class="panel">
+        <div class="color-panel">
+            <div class="color-palette"></div>
+            <div class="current-bg-color"></div>
+        </div>
+        <div class="buttons">
+            <a href="javascript:void(0);" id="export">Export</a>
+            <a href="javascript:void(0);" id="save">Save</a>
+        </div>
+        <div>
+            <textarea name="output" id="output" cols="30" rows="10"></textarea>
+        </div>
+    </div>
+      <script src="main.js"></script>
+</body>
+</html>

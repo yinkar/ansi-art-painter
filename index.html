@@ -47,6 +47,7 @@
             width: 256px;
             flex-wrap: wrap;
             box-sizing: border-box;
+            margin: 0 auto;
         }
 
         .cp-cell {
@@ -66,8 +67,7 @@
             width: 32px;
             height: 32px;
             border: 3px solid #777;
-            margin: 16px;
-            margin: 10px auto;
+            margin: 5px 12px;
         }
 
         .buttons > a {
@@ -79,7 +79,7 @@
             box-sizing: border-box;
             cursor: pointer;
             outline: none;
-            width: 50%;
+            width: calc(100% / 3);
             transition: 100ms ease-in-out background-color;
             text-decoration: none;
             text-align: center;
@@ -105,20 +105,72 @@
             box-sizing: border-box;
             height: 155px;
         }
+
+        .tools {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .tool-buttons {
+            margin: 5px 12px;
+        }
+
+        .tool-button {
+            background-color: #444;
+            cursor: pointer;
+            color: #fff;
+            width: 32px;
+            height: 32px;
+            text-align: center;
+            line-height: 32px;
+            border: none;
+            transition: 100ms ease-in-out background-color;
+        }
+
+        .tool-button:hover {
+            background-color: #555;
+        }
+
+        .tool-button:active {
+            background-color: #666;
+        }
+
+        .tool-button.selected {
+            background-color: #ddd;
+            color: #444;
+        }
     </style>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.10.2/p5.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.css" integrity="sha512-5A8nwdMOWrSz20fDsjczgUidUBR8liPYU+WymTZP1lmY9G6Oc7HlZv156XqnsgNUzTyMefFTcsFH/tnJE/+xBg==" crossorigin="anonymous" referrerpolicy="no-referrer" />
   </head>
   <body>
     <div class="panel">
         <div class="color-panel">
             <div class="color-palette"></div>
-            <div class="current-bg-color"></div>
+
+            <div class="tools">
+                <div class="current-bg-color"></div>
+
+                <div class="tool-buttons">
+                    <button class="tool-button pencil-button selected" data-tool="PENCIL" title="Pencil">
+                       <i class="fa fa-pencil"></i>
+                    </button>
+                    <button class="tool-button eraser-button" data-tool="ERASER" title="Eraser">
+                       <i class="fa fa-eraser"></i>
+                    </button>
+                    <button class="tool-button picker-button" data-tool="COLOR_PICKER" title="Color picker">
+                       <i class="fa fa-tint"></i>
+                    </button>
+                </div>
+            </div>
         </div>
         <div class="buttons">
-            <a href="javascript:void(0);" id="export">Export</a>
-            <a href="javascript:void(0);" id="save">Save</a>
+            <a href="javascript:void(0);" id="clear-button">Clear</a>
+            <a href="javascript:void(0);" id="export-button">Export</a>
+            <a href="javascript:void(0);" id="save-button">Save</a>
         </div>
-        <div>
+        <div class="output-area">
             <textarea name="output" id="output" cols="30" rows="10"></textarea>
         </div>
     </div>

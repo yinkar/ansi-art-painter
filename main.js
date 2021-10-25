@@ -269,7 +269,7 @@ const colorTemplates = {
     fgColorTemplate: `[${colorTypes.FG};5;{color}}m{character}[m`,
 };
 
-const currentCharacter = " ";
+let currentCharacter = " ";
 
 const currentColor = {
     id: 255,
@@ -292,6 +292,14 @@ const cellSize = {
     height: 32,
 };
 
+const tools = {
+    PENCIL: 0,
+    ERASER: 1,
+    COLOR_PICKER: 2
+};
+
+let currentTool = tools.PENCIL;
+
 const colorPalette = document.querySelector(".color-palette");
 
 const currentBgColorElement = document.querySelector(".current-bg-color");
@@ -306,12 +314,16 @@ for (let i = 0, l = colors.length; i < l; i++) {
     colorPalette.appendChild(cpCell);
 }
 
-function colorCellEvent() {
-    currentColor.id = this.dataset.id;
-    currentColor.hex = colors[this.dataset.id];
-    currentColor.ansi = generateColor(this.dataset.id);
+function setCurrentColor(colorId) {
+    currentColor.id = colorId;
+    currentColor.hex = colors[colorId];
+    currentColor.ansi = generateColor(colorId);
 
     setCurrentBgElement();
+}
+
+function colorCellEvent() {
+    setCurrentColor(this.dataset.id);
 }
 
 function generateColor(id) {
@@ -320,12 +332,9 @@ function generateColor(id) {
         .replace("{character}", currentCharacter);
 }
 
-const pixelMatrix = [];
+let pixelMatrix = [];
 
 setCurrentBgElement();
-
-const exportButton = document.querySelector("#export");
-const saveButton = document.querySelector("#save");
 
 const outputElement = document.querySelector("textarea#output");
 
@@ -349,7 +358,7 @@ function exportANSI(e) {
     return output;
 }
 
-function save() {
+function saveANSI() {
     stringToFile(exportANSI(), 'ans', `art-${(+new Date()) % 1000}${Math.floor(Math.random() * 100)}.ans`);
 }
 
@@ -366,24 +375,60 @@ function stringToFile(content, type, name) {
     document.body.removeChild(link);
 }
 
+function fillPixelMatrix() {
+    let tempMatrix = [];
+
+    for (let i = 0; i < dimensions.height; i++) {
+        tempMatrix.push([]);
+
+        for (let j = 0; j < dimensions.height; j++) {
+            tempMatrix[i].push({
+                bgColor: 0,
+            });
+        }
+    }
+
+    return tempMatrix;
+}
+
+const clearButton = document.querySelector("#clear-button");
+const exportButton = document.querySelector("#export-button");
+const saveButton = document.querySelector("#save-button");
+
+clearButton.addEventListener("click", function() {
+    if (!confirm('Are you sure?')) {
+        return;
+    }
+    pixelMatrix = fillPixelMatrix();
+});
 exportButton.addEventListener("click", exportANSI);
-saveButton.addEventListener("click", save);
+saveButton.addEventListener("click", saveANSI);
+
+const toolsElements = document.querySelectorAll('.tool-button');
+
+toolsElements.forEach(e => {
+    e.addEventListener('click', changeTool);
+});
+
+function changeTool() {
+    toolsElements.forEach(e => {
+        e.classList.remove('selected');
+    });
+
+    this.classList.add('selected');
+
+    console.log(this.dataset.tool);
+
+    currentTool = tools[this.dataset.tool];
+}
 
 let cnv;
 
 function setup() {
     cnv = createCanvas(512, 512);
     background(25);
-
-    for (let i = 0; i < dimensions.height; i++) {
-        pixelMatrix.push([]);
-
-        for (let j = 0; j < dimensions.height; j++) {
-            pixelMatrix[i].push({
-                bgColor: 0,
-            });
-        }
-    }
+    
+    pixelMatrix = fillPixelMatrix();
 
     document.oncontextmenu = function() {
         if (
@@ -426,7 +471,19 @@ function draw() {
 
         if (mouseIsPressed) {
             if (mouseButton === LEFT) {
-                pixelMatrix[positions.y][positions.x].bgColor = currentColor.id;
+                switch (currentTool) {
+                    case tools.PENCIL:
+                        pixelMatrix[positions.y][positions.x].bgColor = currentColor.id;
+                    break;
+                    case tools.ERASER:
+                        pixelMatrix[positions.y][positions.x].bgColor = 0;
+                    break;
+                    case tools.COLOR_PICKER:
+                        setCurrentColor(pixelMatrix[positions.y][positions.x].bgColor);
+                        
+                        toolsElements[0].click();
+                    break;
+                }
             }
             else {
                 pixelMatrix[positions.y][positions.x].bgColor = 0;

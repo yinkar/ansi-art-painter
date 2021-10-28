@@ -445,14 +445,40 @@ function setup() {
 function draw() {
     for (let i = 0; i < dimensions.height; i++) {
         for (let j = 0; j < dimensions.width; j++) {
-            fill(color(colors[pixelMatrix[i][j].bgColor]));
-            stroke(150);
-            rect(
-                j * cellSize.width + offset.width,
-                i * cellSize.height + offset.width,
-                cellSize.width,
-                cellSize.height
-            );
+            stroke(100);
+            if (pixelMatrix[i][j].bgColor !== 0) {
+                fill(color(colors[pixelMatrix[i][j].bgColor]));
+                rect(
+                    j * cellSize.width + offset.width,
+                    i * cellSize.height + offset.width,
+                    cellSize.width,
+                    cellSize.height
+                );
+            }
+            else {
+                noStroke();
+                fill(75);
+                rect(
+                    j * cellSize.width + offset.width + 1,
+                    i * cellSize.height + offset.width + 1,
+                    cellSize.width / 2 - 1,
+                    cellSize.height / 2 - 1
+                );
+                rect(
+                    j * cellSize.width + offset.width + cellSize.width / 2 + 1,
+                    i * cellSize.height + offset.width + cellSize.height / 2 + 1,
+                    cellSize.width / 2 - 1,
+                    cellSize.height / 2 - 1
+                );
+                noFill();
+                stroke(100);
+                rect(
+                    j * cellSize.width + offset.width,
+                    i * cellSize.height + offset.width,
+                    cellSize.width,
+                    cellSize.height
+                );
+            }
         }
     }
 
@@ -503,4 +529,16 @@ function getCellPosition(x, y) {
 
 function setCurrentBgElement() {
     currentBgColorElement.style.backgroundColor = colors[currentColor.id];
+}
+
+function keyPressed() {
+    if (keyCode === CONTROL) {
+        toolsElements[2].click();
+    }
+}
+
+function keyReleased() {
+    if (keyCode === CONTROL) {
+        toolsElements[0].click();
+    }
 }

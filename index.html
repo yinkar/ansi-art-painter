@@ -27,6 +27,7 @@
             flex-direction: row-reverse;
             font-family: sans-serif;
             visibility: hidden;
+            flex-wrap: wrap;
         }
 
         body.render {
@@ -44,15 +45,34 @@
 
         .color-palette {
             display: flex;
-            width: 256px;
+            width: calc(256px + 6px);
+            height: 256px;
+            overflow: auto;
             flex-wrap: wrap;
             box-sizing: border-box;
             margin: 0 auto;
         }
 
+        .color-palette::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .color-palette::-webkit-scrollbar-thumb {
+            background-color: rgba(255, 255, 255, .5);
+            border-radius: 3px;
+        }
+
+        .color-palette::-webkit-scrollbar-thumb:hover {
+            background-color: rgba(255, 255, 255, .9);
+        }
+
+        .color-palette::-webkit-scrollbar-track {
+            background-color: rgba(120, 120, 120, .8);
+        }
+
         .cp-cell {
-            width: 16px;
-            height: 16px;
+            width: 32px;
+            height: 32px;
             cursor: pointer;
             box-sizing: border-box;
             padding: 2px;

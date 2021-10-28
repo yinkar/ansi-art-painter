@@ -456,6 +456,14 @@ function draw() {
                 );
             }
             else {
+                fill(50);
+                stroke(100);
+                rect(
+                    j * cellSize.width + offset.width,
+                    i * cellSize.height + offset.width,
+                    cellSize.width,
+                    cellSize.height
+                );
                 noStroke();
                 fill(75);
                 rect(
@@ -469,14 +477,6 @@ function draw() {
                     i * cellSize.height + offset.width + cellSize.height / 2 + 1,
                     cellSize.width / 2 - 1,
                     cellSize.height / 2 - 1
-                );
-                noFill();
-                stroke(100);
-                rect(
-                    j * cellSize.width + offset.width,
-                    i * cellSize.height + offset.width,
-                    cellSize.width,
-                    cellSize.height
                 );
             }
         }

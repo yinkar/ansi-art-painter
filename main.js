@@ -417,8 +417,6 @@ function changeTool() {
 
     this.classList.add('selected');
 
-    console.log(this.dataset.tool);
-
     currentTool = tools[this.dataset.tool];
 }
 

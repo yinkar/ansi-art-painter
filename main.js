@@ -393,6 +393,7 @@ function fillPixelMatrix() {
 
 const clearButton = document.querySelector("#clear-button");
 const exportButton = document.querySelector("#export-button");
+const importButton = document.querySelector("#import-button");
 const saveButton = document.querySelector("#save-button");
 
 clearButton.addEventListener("click", function() {
@@ -402,6 +403,7 @@ clearButton.addEventListener("click", function() {
     pixelMatrix = fillPixelMatrix();
 });
 exportButton.addEventListener("click", exportANSI);
+importButton.addEventListener("click", importImage);
 saveButton.addEventListener("click", saveANSI);
 
 const toolsElements = document.querySelectorAll('.tool-button');
@@ -439,6 +441,67 @@ function setup() {
 
     document.body.classList.add('render');
 }
+
+function importImage() {
+    let imgurl = window.prompt('Enter image URL');
+    img = document.createElement('img');
+    img.crossOrigin = "Anonymous";
+
+    img.src = imgurl;
+    img.onload = function () {
+        canvas = document.createElement("canvas");
+        canvas.width = img.width;
+        canvas.height = img.height;
+        let ctx = canvas.getContext(
+          "2d"
+        );
+        ctx.drawImage(img, 0, 0);
+  
+        const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        data = imgData.data;
+        for (let i=0; i<dimensions.height; i++) {
+            for (let j=0; j<dimensions.height; j++) {
+                let cols = canvas.width;
+                let offsetX = Math.floor(i*canvas.height/dimensions.height);
+                let offsetY = Math.floor(j*canvas.width/dimensions.height);
+                //call the method to get the r,g,b,a values for current pixel
+                let c = extractPixelColor(cols, offsetY, offsetX);
+                //build a colour string for 
+                let colour = `rgb(${c.red}, ${c.green}, ${c.blue})` ;
+                let hexCode = `#${[c.red, c.green, c.blue]
+                    .map((x) => x.toString(16).padStart(2, "0"))
+                    .join("")}`;
+                pixelMatrix[i][j] = {bgColor:colors.indexOf(nearestColor(hexCode))};
+            }    
+        }
+        
+          
+    };
+}
+
+//cols: Width of the image representing total number of columns
+//x: Row position of this pixel
+//y: Column position of this pixel
+const extractPixelColor = (cols, x, y) => {
+    //To get the exact pixel, the logic is to multiply total columns in this image with the row position of this pixel and then add the column position of this pixed
+    let pixel = cols * x + y;
+    //To get the array position in the entire image data array, simply multiply your pixel position by 4 (since each pixel will have its own r,g,b,a in that order)
+    let position = pixel * 4;
+    //the rgba value of current pixel will be the following
+    return {
+        red: data[position],
+        green: data[position + 1],
+        blue: data[position + 2],
+        alpha: data[position + 3],
+    };
+};
+
+const hexToRgb = hex => hex.slice(1).replace(/^(.)(.)(.)$/gi, "$1$1$2$2$3$3").match(/.{2}/g).map(c => parseInt(c, 16));
+const distance = (a, b) => Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2));
+const nearestColor = colorHex =>
+  colors.reduce((a,v,i,arr) =>
+    a = distance(hexToRgb(colorHex), hexToRgb(v)) < a[0] ? [distance(hexToRgb(colorHex), hexToRgb(v)), v] : a, [Number.POSITIVE_INFINITY, colors[0]])[1];
+
 
 function draw() {
     for (let i = 0; i < dimensions.height; i++) {

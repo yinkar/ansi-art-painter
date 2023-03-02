@@ -471,7 +471,7 @@ function importImage() {
                 let hexCode = `#${[c.red, c.green, c.blue]
                     .map((x) => x.toString(16).padStart(2, "0"))
                     .join("")}`;
-                pixelMatrix[i][j] = {bgColor:colors.indexOf(nearestColor(hexCode))};
+                pixelMatrix[j][i] = {bgColor:colors.indexOf(nearestColor(hexCode))};
             }    
         }
         

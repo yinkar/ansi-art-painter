@@ -7,8 +7,6 @@ const colorTypes = {
   FG: 38,
 };
 
-const currentColorType = colorTypes.BG;
-
 const colorTemplates = {
   bgColorTemplate: `[${colorTypes.BG};5;{color}m{character}[m`,
   fgColorTemplate: `[${colorTypes.FG};5;{color}}m{character}[m`,
@@ -251,8 +249,8 @@ const sketch = function(p5) {
   
     document.oncontextmenu = function() {
         if (
-            p5.mouseX  < width && p5.mouseY < height &&
-            p5.mouseX > cnv.position().x - width / 2 && p5.mouseY > cnv.position().y
+            p5.mouseX < p5.width && p5.mouseY < p5.height &&
+            p5.mouseX > cnv.position().x - p5.width / 2 && p5.mouseY > cnv.position().y
         ) {
             return false;
         }
@@ -266,7 +264,7 @@ const sketch = function(p5) {
         for (let j = 0; j < dimensions.width; j++) {
             p5.stroke(100);
             if (pixelMatrix[i][j].bgColor !== 0) {
-                p5.fill(color(colors[pixelMatrix[i][j].bgColor]));
+                p5.fill(p5.color(colors[pixelMatrix[i][j].bgColor]));
                   p5.rect(
                     j * cellSize.width + offset.width,
                     i * cellSize.height + offset.width,
@@ -315,7 +313,7 @@ const sketch = function(p5) {
         p5.cursor(p5.HAND);
   
         if (p5.mouseIsPressed) {
-            if (mouseButton === LEFT) {
+            if (p5.mouseButton === p5.LEFT) {
                 switch (currentTool) {
                     case tools.PENCIL:
                         pixelMatrix[positions.y][positions.x].bgColor = currentColor.id;
@@ -324,7 +322,7 @@ const sketch = function(p5) {
                         pixelMatrix[positions.y][positions.x].bgColor = 0;
                     break;
                     case tools.COLOR_PICKER:
-                        p5.setCurrentColor(pixelMatrix[positions.y][positions.x].bgColor);
+                        setCurrentColor(pixelMatrix[positions.y][positions.x].bgColor);
                         
                         toolsElements[0].click();
                     break;
@@ -335,18 +333,18 @@ const sketch = function(p5) {
             }
         }
     } else {
-        p5.cursor(ARROW);
+        p5.cursor(p5.ARROW);
     }
   }
   
   p5.keyPressed = function() {
-    if (keyCode === CONTROL) {
+    if (p5.keyCode === p5.CONTROL) {
         toolsElements[2].click();
     }
   }
   
   p5.keyReleased = function() {
-    if (keyCode === CONTROL) {
+    if (p5.keyCode === p5.CONTROL) {
         toolsElements[0].click();
     }
   }

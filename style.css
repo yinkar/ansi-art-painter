@@ -30,10 +30,6 @@ canvas {
   border: 2px solid #444;
 }
 
-.color-panel {
-
-}
-
 .color-palette {
   display: flex;
   width: calc(256px + 6px);
@@ -86,7 +82,7 @@ canvas {
   padding: 10px 9px;
   background-color: firebrick;
   color: #fff;
-  font-size: 1.2em;
+  font-size: .8rem;
   box-sizing: border-box;
   cursor: pointer;
   outline: none;
@@ -94,6 +90,8 @@ canvas {
   transition: 100ms ease-in-out background-color;
   text-decoration: none;
   text-align: center;
+  border-radius: 5px;
+  margin: 0 4px 6px 4px;
 }
 
 .buttons > a:not(:last-child) {
@@ -137,6 +135,12 @@ textarea#output {
   line-height: 32px;
   border: none;
   transition: 100ms ease-in-out background-color;
+  padding: 3px;
+  border-radius: 50%;
+}
+
+.tool-button > svg {
+  transform: scale(.7);
 }
 
 .tool-button:hover {

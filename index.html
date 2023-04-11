@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>ANSI Art Painter</title>
+	  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0">
+    <link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns='http://www.w3.org/2000/svg'%20viewBox='0%200%2018%2018'%3E%3Ctext%20x='0'%20y='14'%3E🎨%3C/text%3E%3C/svg%3E" type="image/svg+xml">
+  </head>
+  <body>
+    <div class="panel">
+        <div class="color-panel">
+            <div class="color-palette"></div>
+
+            <div class="tools">
+                <div class="current-bg-color"></div>
+
+                <div class="tool-buttons">
+                    <button class="tool-button pencil-button selected" data-tool="PENCIL" title="Pencil">
+                       <i class="fa fa-pencil"></i>
+                    </button>
+                    <button class="tool-button eraser-button" data-tool="ERASER" title="Eraser">
+                       <i class="fa fa-eraser"></i>
+                    </button>
+                    <button class="tool-button picker-button" data-tool="COLOR_PICKER" title="Color picker">
+                       <i class="fa fa-tint"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="buttons">
+            <a href="javascript:void(0);" id="clear-button">Clear</a>
+            <a href="javascript:void(0);" id="export-button">Export</a>
+            <a href="javascript:void(0);" id="import-button">Import</a>
+            <a href="javascript:void(0);" id="save-button">Save</a>
+        </div>
+        <div class="output-area">
+            <textarea name="output" id="output" cols="30" rows="10"></textarea>
+        </div>
+    </div>
+    <script type="module" src="/main.js"></script>
+  </body>
+</html>

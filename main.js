@@ -189,9 +189,9 @@ function importImage() {
               let cols = canvas.width;
               let offsetX = Math.floor(i*canvas.height/dimensions.height);
               let offsetY = Math.floor(j*canvas.width/dimensions.height);
-              //call the method to get the r,g,b,a values for current pixel
+              // call the method to get the r, g, b, a values for current pixel
               let c = extractPixelColor(cols, offsetY, offsetX);
-              //build a colour string for 
+              // build a colour string for 
               let colour = `rgb(${c.red}, ${c.green}, ${c.blue})` ;
               let hexCode = `#${[c.red, c.green, c.blue]
                   .map((x) => x.toString(16).padStart(2, "0"))
@@ -204,15 +204,15 @@ function importImage() {
   };
 }
 
-//cols: Width of the image representing total number of columns
-//x: Row position of this pixel
-//y: Column position of this pixel
+// cols: Width of the image representing total number of columns
+// x: Row position of this pixel
+// y: Column position of this pixel
 const extractPixelColor = (cols, x, y) => {
-  //To get the exact pixel, the logic is to multiply total columns in this image with the row position of this pixel and then add the column position of this pixed
+  // To get the exact pixel, the logic is to multiply total columns in this image with the row position of this pixel and then add the column position of this pixel
   let pixel = cols * x + y;
-  //To get the array position in the entire image data array, simply multiply your pixel position by 4 (since each pixel will have its own r,g,b,a in that order)
+  // To get the array position in the entire image data array, simply multiply your pixel position by 4 (since each pixel will have its own r, g, b, a in that order)
   let position = pixel * 4;
-  //the rgba value of current pixel will be the following
+  // the rgba value of current pixel will be the following
   return {
       red: data[position],
       green: data[position + 1],

@@ -94,10 +94,6 @@ canvas {
   margin: 0 4px 6px 4px;
 }
 
-.buttons > a:not(:last-child) {
-  border-right: 1px solid tomato;
-}
-
 .buttons > a:hover {
   background-color: tomato;
 }

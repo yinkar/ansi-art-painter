@@ -27,7 +27,8 @@ body.render {
 
 canvas {
   display: block;
-  border: 2px solid #444;
+  border-radius: 4px;
+  border: 2px solid #bbb;
 }
 
 .color-palette {
@@ -57,24 +58,24 @@ canvas {
   background-color: rgba(120, 120, 120, .8);
 }
 
-.cp-cell {
-  width: 32px;
-  height: 32px;
+.color-palette-cell {
+  width: 16px;
+  height: 16px;
   cursor: pointer;
   box-sizing: border-box;
   padding: 2px;
-  border: 2px solid #000;
 }
 
-.cp-cell:hover {
+.color-palette-cell:hover {
   border: 2px solid #ddd;
 }
 
 .current-bg-color {
   width: 32px;
   height: 32px;
-  border: 3px solid #777;
+  border: 3px solid #bbb;
   margin: 5px 12px;
+  border-radius: 3px;
 }
 
 .buttons > a {
@@ -101,6 +102,8 @@ canvas {
 .buttons {
   display: flex;
   margin-top: 15px;
+  margin-left: 10px;
+  margin-right: 10px;
 }
 
 textarea#output {
@@ -108,13 +111,18 @@ textarea#output {
   color: #fff;
   padding: 10px;
   box-sizing: border-box;
-  height: 155px;
+  height: 145px;
+  resize: none;
+  margin: 10px;
+  border-radius: 4px;
 }
 
 .tools {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  width: 290px;
+  margin: 0 auto;
 }
 
 .tool-buttons {

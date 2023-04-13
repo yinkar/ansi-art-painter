@@ -49,7 +49,7 @@ const currentBgColorElement = document.querySelector(".current-bg-color");
 
 for (let i = 0, l = colors.length; i < l; i++) {
   const cpCell = document.createElement("div");
-  cpCell.classList.add("cp-cell");
+  cpCell.classList.add("color-palette-cell");
   cpCell.style.backgroundColor = colors[i];
   cpCell.dataset.id = i;
   cpCell.addEventListener("click", colorCellEvent);
@@ -273,8 +273,8 @@ const sketch = function(p5) {
                 );
             }
             else {
-                p5.fill(50);
-                p5.stroke(100);
+                p5.fill(110);
+                p5.stroke(80);
                 p5.rect(
                     j * cellSize.width + offset.width,
                     i * cellSize.height + offset.width,
@@ -282,7 +282,7 @@ const sketch = function(p5) {
                     cellSize.height
                 );
                 p5.noStroke();
-                p5.fill(75);
+                p5.fill(150);
                 p5.rect(
                     j * cellSize.width + offset.width + 1,
                     i * cellSize.height + offset.width + 1,

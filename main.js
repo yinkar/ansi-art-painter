@@ -81,6 +81,8 @@ setCurrentBgElement();
 
 const outputElement = document.querySelector("textarea#output");
 
+let data = [];
+
 function exportANSI(e) {
   let output = "";
 
@@ -168,13 +170,13 @@ function changeTool() {
 let cnv;
 
 function importImage() {
-  let imgurl = window.prompt('Enter image URL');
-  img = document.createElement('img');
+  const imgurl = window.prompt('Enter image URL');
+  const img = document.createElement('img');
   img.crossOrigin = "Anonymous";
 
-  img.src = imgurl;
+  img.src = `https://corsproxy.io/?${imgurl}`;
   img.onload = function () {
-      canvas = document.createElement("canvas");
+      const canvas = document.createElement("canvas");
       canvas.width = img.width;
       canvas.height = img.height;
       let ctx = canvas.getContext(

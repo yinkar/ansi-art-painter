@@ -127,6 +127,9 @@ textarea#output {
   resize: none;
   margin: 10px;
   border-radius: 4px;
+  font-size: .6rem;
+  width: 280px;
+  font-family: 'Courier New', Courier, monospace;
 }
 
 .tools {

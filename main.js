@@ -43,6 +43,7 @@ const tools = {
 };
 
 let currentTool = tools.PENCIL;
+let lastTool = tools.PENCIL;
 
 const colorPalette = document.querySelector(".color-palette");
 
@@ -184,6 +185,7 @@ document.addEventListener('contextmenu', e => {
 });
 
 function changeTool() {
+  lastTool = currentTool;
   toolsElements.forEach(e => {
       e.classList.remove('selected');
   });
@@ -201,7 +203,7 @@ async function importImage() {
   img.crossOrigin = "Anonymous";
 
   await fetch(`https://api.allorigins.win/get?url=${imgUrl}`).then(r => r.json()).then(d => img.src = d.contents);
-  
+
   img.onload = function () {
       const canvas = document.createElement("canvas");
       canvas.width = img.width;
@@ -344,7 +346,7 @@ const sketch = function(p5) {
                     case tools.COLOR_PICKER:
                         setCurrentColor(pixelMatrix[positions.y][positions.x].bgColor);
                         
-                        toolsElements[0].click();
+                        toolsElements[tools.PENCIL].click();
                     break;
                 }
             }
@@ -359,13 +361,14 @@ const sketch = function(p5) {
   
   p5.keyPressed = function() {
     if (p5.keyCode === p5.CONTROL) {
-        toolsElements[2].click();
+        lastTool = currentTool;
+        toolsElements[tools.COLOR_PICKER].click();
     }
   };
   
   p5.keyReleased = function() {
     if (p5.keyCode === p5.CONTROL) {
-        toolsElements[0].click();
+        toolsElements[tools.PENCIL].click();
     }
   };
 

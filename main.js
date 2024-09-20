@@ -37,8 +37,9 @@ const cellSize = {
 
 const tools = {
   PENCIL: 0,
-  ERASER: 1,
-  COLOR_PICKER: 2
+  BUCKET: 1,
+  ERASER: 2,
+  COLOR_PICKER: 3,
 };
 
 let currentTool = tools.PENCIL;
@@ -72,7 +73,7 @@ function setCurrentColor(colorId) {
 }
 
 function colorCellEvent() {
-  setCurrentColor(this.dataset.id);
+  setCurrentColor(parseInt(this.dataset.id));
 }
 
 function generateColor(id) {
@@ -335,6 +336,26 @@ const sketch = function(p5) {
                 switch (currentTool) {
                     case tools.PENCIL:
                         pixelMatrix[positions.y][positions.x].bgColor = currentColor.id;
+                    break;
+                    case tools.BUCKET:                      
+                        const floodFill = (x, y, targetColor, newColor) => {
+                          if (parseInt(newColor) === 0) return;
+                          else if (parseInt(targetColor) === parseInt(newColor)) return;
+                          else if (pixelMatrix[y] === undefined) return;
+                          else if (pixelMatrix[y][x] === undefined) return;
+                          else if (parseInt(pixelMatrix[y][x].bgColor) !== parseInt(targetColor)) return;
+                          else {                            
+                            pixelMatrix[y][x].bgColor = newColor;
+
+                            floodFill(x, y-1, targetColor, newColor);
+                            floodFill(x, y+1, targetColor, newColor);
+                            floodFill(x-1, y, targetColor, newColor);
+                            floodFill(x+1, y, targetColor, newColor);
+                            return;
+                          }
+                        };
+                        
+                        console.log(floodFill(positions.x, positions.y, pixelMatrix[positions.y][positions.x].bgColor, currentColor.id));
                     break;
                     case tools.ERASER:
                         pixelMatrix[positions.y][positions.x].bgColor = 0;

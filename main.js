@@ -45,6 +45,8 @@ let currentTool = tools.PENCIL;
 
 const colorPalette = document.querySelector(".color-palette");
 
+const colorPaletteMagnifier = document.querySelector("#color-palette-magnifier");
+
 const currentBgColorElement = document.querySelector(".current-bg-color");
 
 for (let i = 0, l = colors.length; i < l; i++) {
@@ -53,6 +55,10 @@ for (let i = 0, l = colors.length; i < l; i++) {
   cpCell.style.backgroundColor = colors[i];
   cpCell.dataset.id = i;
   cpCell.addEventListener("click", colorCellEvent);
+
+  cpCell.addEventListener('mouseenter', e => {
+    colorPaletteMagnifier.style.backgroundColor = colors[i];
+  });
 
   colorPalette.appendChild(cpCell);
 }
@@ -155,6 +161,19 @@ const toolsElements = document.querySelectorAll('.tool-button');
 
 toolsElements.forEach(e => {
   e.addEventListener('click', changeTool);
+});
+
+colorPalette.addEventListener('mouseenter', e => {
+  colorPaletteMagnifier.style.display = 'block';
+});
+
+colorPalette.addEventListener('mouseleave', e => {
+  colorPaletteMagnifier.style.display = 'none';
+});
+
+document.addEventListener('mousemove', e => {
+  colorPaletteMagnifier.style.left = `${e.clientX + 10}px`;
+  colorPaletteMagnifier.style.top = `${e.clientY + 10}px`;
 });
 
 function changeTool() {

@@ -176,6 +176,12 @@ document.addEventListener('mousemove', e => {
   colorPaletteMagnifier.style.top = `${e.clientY + 10}px`;
 });
 
+document.addEventListener('contextmenu', e => {
+  if (e.target.nodeName !== 'TEXTAREA') {
+    e.preventDefault();
+  }
+});
+
 function changeTool() {
   toolsElements.forEach(e => {
       e.classList.remove('selected');
@@ -267,16 +273,7 @@ const sketch = function(p5) {
     p5.background(25);
     
     pixelMatrix = fillPixelMatrix();
-  
-    document.oncontextmenu = function() {
-        if (
-            p5.mouseX < p5.width && p5.mouseY < p5.height &&
-            p5.mouseX > cnv.position().x - p5.width / 2 && p5.mouseY > cnv.position().y
-        ) {
-            return false;
-        }
-    }
-  
+    
     document.body.classList.add('render');
   }
   

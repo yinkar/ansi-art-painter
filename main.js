@@ -195,12 +195,13 @@ function changeTool() {
 
 let cnv;
 
-function importImage() {
-  const imgurl = window.prompt('Enter image URL');
+async function importImage() {
+  const imgUrl = window.prompt('Enter image URL');
   const img = document.createElement('img');
   img.crossOrigin = "Anonymous";
 
-  img.src = `https://corsproxy.io/?${imgurl}`;
+  await fetch(`https://api.allorigins.win/get?url=${imgUrl}`).then(r => r.json()).then(d => img.src = d.contents);
+  
   img.onload = function () {
       const canvas = document.createElement("canvas");
       canvas.width = img.width;

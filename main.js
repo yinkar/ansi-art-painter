@@ -255,8 +255,6 @@ const nearestColor = colorHex =>
 colors.reduce((a,v,i,arr) =>
   a = distance(hexToRgb(colorHex), hexToRgb(v)) < a[0] ? [distance(hexToRgb(colorHex), hexToRgb(v)), v] : a, [Number.POSITIVE_INFINITY, colors[0]])[1];
 
-
-
 function getCellPosition(x, y) {
   return {
       x: parseInt(x / cellSize.width),
@@ -269,6 +267,11 @@ function setCurrentBgElement() {
 }
 
 const sketch = function(p5) {
+  const getPositions = () => getCellPosition(
+      p5.mouseX - offset.width,
+      p5.mouseY - offset.height
+  );
+
   p5.setup = function() {
     cnv = p5.createCanvas(512, 512);
     p5.background(25);
@@ -276,7 +279,7 @@ const sketch = function(p5) {
     pixelMatrix = fillPixelMatrix();
     
     document.body.classList.add('render');
-  }
+  };
   
   p5.draw = function() {
     for (let i = 0; i < dimensions.height; i++) {
@@ -317,11 +320,8 @@ const sketch = function(p5) {
             }
         }
     }
-  
-    let positions = getCellPosition(
-        p5.mouseX - offset.width,
-        p5.mouseY - offset.height
-    );
+
+    const positions = getPositions();
   
     if (
         positions.y >= 0 &&
@@ -336,26 +336,6 @@ const sketch = function(p5) {
                 switch (currentTool) {
                     case tools.PENCIL:
                         pixelMatrix[positions.y][positions.x].bgColor = currentColor.id;
-                    break;
-                    case tools.BUCKET:                      
-                        const floodFill = (x, y, targetColor, newColor) => {
-                          if (parseInt(newColor) === 0) return;
-                          else if (parseInt(targetColor) === parseInt(newColor)) return;
-                          else if (pixelMatrix[y] === undefined) return;
-                          else if (pixelMatrix[y][x] === undefined) return;
-                          else if (parseInt(pixelMatrix[y][x].bgColor) !== parseInt(targetColor)) return;
-                          else {                            
-                            pixelMatrix[y][x].bgColor = newColor;
-
-                            floodFill(x, y-1, targetColor, newColor);
-                            floodFill(x, y+1, targetColor, newColor);
-                            floodFill(x-1, y, targetColor, newColor);
-                            floodFill(x+1, y, targetColor, newColor);
-                            return;
-                          }
-                        };
-                        
-                        floodFill(positions.x, positions.y, pixelMatrix[positions.y][positions.x].bgColor, currentColor.id);
                     break;
                     case tools.ERASER:
                         pixelMatrix[positions.y][positions.x].bgColor = 0;
@@ -374,19 +354,44 @@ const sketch = function(p5) {
     } else {
         p5.cursor(p5.ARROW);
     }
-  }
+  };
   
   p5.keyPressed = function() {
     if (p5.keyCode === p5.CONTROL) {
         toolsElements[2].click();
     }
-  }
+  };
   
   p5.keyReleased = function() {
     if (p5.keyCode === p5.CONTROL) {
         toolsElements[0].click();
     }
-  }
+  };
+
+  p5.mouseClicked = function() {
+    const positions = getPositions();
+
+    if (p5.mouseButton === p5.LEFT && currentTool === tools.BUCKET) {
+      const floodFill = (x, y, targetColor, newColor) => {
+        if (parseInt(newColor) === 0) return;
+        else if (parseInt(targetColor) === parseInt(newColor)) return;
+        else if (pixelMatrix[y] === undefined) return;
+        else if (pixelMatrix[y][x] === undefined) return;
+        else if (parseInt(pixelMatrix[y][x].bgColor) !== parseInt(targetColor)) return;
+        else {                            
+          pixelMatrix[y][x].bgColor = newColor;
+  
+          floodFill(x, y-1, targetColor, newColor);
+          floodFill(x, y+1, targetColor, newColor);
+          floodFill(x-1, y, targetColor, newColor);
+          floodFill(x+1, y, targetColor, newColor);
+          return;
+        }
+      };
+  
+      floodFill(positions.x, positions.y, pixelMatrix[positions.y][positions.x].bgColor, currentColor.id);
+    }
+  };
 }
 
 new p5(sketch);

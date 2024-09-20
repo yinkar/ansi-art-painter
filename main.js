@@ -355,7 +355,7 @@ const sketch = function(p5) {
                           }
                         };
                         
-                        console.log(floodFill(positions.x, positions.y, pixelMatrix[positions.y][positions.x].bgColor, currentColor.id));
+                        floodFill(positions.x, positions.y, pixelMatrix[positions.y][positions.x].bgColor, currentColor.id);
                     break;
                     case tools.ERASER:
                         pixelMatrix[positions.y][positions.x].bgColor = 0;

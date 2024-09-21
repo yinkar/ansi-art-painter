@@ -171,6 +171,10 @@ textarea#output {
   background-color: #666;
 }
 
+.tool-button:not(.selected) {
+  stroke: #ddd;
+}
+
 .tool-button.selected {
   background-color: #ddd;
   color: #444;

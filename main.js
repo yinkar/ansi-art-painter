@@ -280,6 +280,10 @@ const sketch = function(p5) {
     p5.background(25);
     
     pixelMatrix = fillPixelMatrix();
+
+    if (window.localStorage.getItem('cache') !== null) {
+      pixelMatrix = JSON.parse(window.localStorage.getItem('cache'));
+    }
     
     document.body.classList.add('render');
   };
@@ -357,6 +361,10 @@ const sketch = function(p5) {
     } else {
         p5.cursor(p5.ARROW);
     }
+
+    if (p5.frameCount % 400 === 0) {
+      window.localStorage.setItem('cache', JSON.stringify(pixelMatrix));
+    }
   };
   
   p5.keyPressed = function() {
@@ -393,6 +401,9 @@ const sketch = function(p5) {
         }
       };
   
+      if (pixelMatrix[positions.y] === undefined) return;
+      else if (pixelMatrix[positions.y][positions.x] === undefined) return;
+
       floodFill(positions.x, positions.y, pixelMatrix[positions.y][positions.x].bgColor, currentColor.id);
     }
   };

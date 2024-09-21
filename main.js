@@ -184,6 +184,10 @@ document.addEventListener('contextmenu', e => {
   }
 });
 
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelector('.panel').style.display = 'block';
+});
+
 function changeTool() {
   lastTool = currentTool;
   toolsElements.forEach(e => {

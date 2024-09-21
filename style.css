@@ -193,3 +193,11 @@ textarea#output {
   top: 0;
   z-index: 99999;
 }
+
+.panel {
+  display: none;
+}
+
+.panel.show {
+  display: block;
+}

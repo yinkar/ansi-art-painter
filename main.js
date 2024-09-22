@@ -103,12 +103,7 @@ function exportANSI(e) {
 
   for (let i = 0; i < dimensions.height; i++) {
     for (let j = 0; j < dimensions.width; j++) {
-      if (pixelMatrix[i][j].bgColor !== 0) {
-        output += generateColor(pixelMatrix[i][j].bgColor).repeat(2);
-      }
-      else {
-        output += " ".repeat(2);
-      }
+      output += generateColor(pixelMatrix[i][j].bgColor).repeat(2);
     }
     output += "\n";
   }
@@ -356,11 +351,11 @@ function rotateRight() {
 }
 
 function invertColors() {
-  pixelMatrix = pixelMatrix.map(j => j.map(k => {
-    if (k.bgColor === 0) return k;
+  pixelMatrix = pixelMatrix.map(i => i.map(j => {
+    if (j.bgColor === 0) return j;
 
     const invert = (color) => ((color & 0x000000) | (~color & 0xFFFFFF));
-    const color = colors[k.bgColor];
+    const color = colors[j.bgColor];
     
     const invertedColorCode =`#${invert(parseInt(color.substring(1), 16))
       .toString(16)
@@ -369,9 +364,9 @@ function invertColors() {
 
     const pixelMatrixColor = colors.indexOf(nearestColor(invertedColorCode));
     
-    k.bgColor = pixelMatrixColor;
+    j.bgColor = pixelMatrixColor;
 
-    return k;
+    return j;
   }));
 
   appendUndo();

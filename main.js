@@ -35,6 +35,8 @@ const cellSize = {
   height: 32,
 };
 
+const undoLimit = 20;
+
 const tools = {
   PENCIL: 0,
   BUCKET: 1,
@@ -177,10 +179,14 @@ otherButton.addEventListener("click", () => {
 });
 flipHorizontallyButton.addEventListener("click", flipHorizontally);
 flipVerticallyButton.addEventListener("click", flipVertically);
-rotateRightButton.addEventListener("click", rotateRight);
-rotateLeftButton.addEventListener("click", () => {
-    [ 1, 2, 3 ].forEach(() => rotateRight(true));
+rotateRightButton.addEventListener("click", () => {
     appendUndo();
+    rotateRight();
+  }
+);
+rotateLeftButton.addEventListener("click", () => {
+    appendUndo();
+    [ 1, 2, 3 ].forEach(() => rotateRight());
   }
 );
 
@@ -339,15 +345,11 @@ function flipVertically() {
   appendUndo();
 }
 
-function rotateRight(reverse = false) {
+function rotateRight() {
   const transposedMatrix = pixelMatrix[0].map((_, i) => pixelMatrix.map(row => row[i]));
   const rotatedMatrix = transposedMatrix.map(row => row.reverse());
 
   pixelMatrix = rotatedMatrix;
-  
-  if (!reverse) {
-    appendUndo();
-  }
 }
 
 function undo() {
@@ -386,9 +388,10 @@ function appendUndo() {
   undoStack.push(JSON.stringify(pixelMatrix));
   clearRedo();
 
-  if (undoStack.length > 5) {
+  if (undoStack.length > undoLimit) {
     undoStack.shift();
   }
+  checkUndoRedoButtons();
 }
 
 function clearRedo() {

@@ -250,6 +250,7 @@ textarea#output {
   border-radius: 50%;
   margin-right: 2px;
   box-shadow: 0 2px 8px #0006;
+  cursor: pointer;
 }
 
 .undo-redo-buttons button:not(.disabled):hover {

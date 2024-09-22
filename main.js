@@ -398,6 +398,15 @@ function clearRedo() {
   redoStack.length = 0;
 }
 
+window.addEventListener('keydown', function(e) {
+  if (e.ctrlKey && e.code === 'KeyZ') {
+    undo();
+  }
+  else if (e.ctrlKey && e.code === 'KeyY') {
+    redo();
+  }
+});
+
 const sketch = function (p5) {
   const getPositions = () => getCellPosition(
     p5.mouseX - offset.width,
@@ -515,14 +524,14 @@ const sketch = function (p5) {
   };
 
   p5.keyPressed = function () {
-    if (p5.keyCode === p5.CONTROL) {
+    if (p5.keyCode === p5.ALT) {
       lastTool = currentTool;
       toolsElements[tools.COLOR_PICKER].click();
     }
   };
 
   p5.keyReleased = function () {
-    if (p5.keyCode === p5.CONTROL) {
+    if (p5.keyCode === p5.ALT) {
       toolsElements[tools.PENCIL].click();
     }
   };

@@ -161,6 +161,7 @@ const flipHorizontallyButton = document.querySelector("#flip-horizontally-button
 const flipVerticallyButton = document.querySelector("#flip-vertically-button");
 const rotateRightButton = document.querySelector("#rotate-right-button");
 const rotateLeftButton = document.querySelector("#rotate-left-button");
+const invertButton = document.querySelector("#invert-button");
 
 const undoButton = document.querySelector("#undo-button");
 const redoButton = document.querySelector("#redo-button");
@@ -189,6 +190,7 @@ rotateLeftButton.addEventListener("click", () => {
     [ 1, 2, 3 ].forEach(() => rotateRight());
   }
 );
+invertButton.addEventListener("click", invertColors);
 
 undoButton.addEventListener('click', undo);
 redoButton.addEventListener('click', redo);
@@ -342,6 +344,7 @@ function flipHorizontally() {
 
 function flipVertically() {
   pixelMatrix = pixelMatrix.reverse();
+
   appendUndo();
 }
 
@@ -350,6 +353,28 @@ function rotateRight() {
   const rotatedMatrix = transposedMatrix.map(row => row.reverse());
 
   pixelMatrix = rotatedMatrix;
+}
+
+function invertColors() {
+  pixelMatrix = pixelMatrix.map(j => j.map(k => {
+    if (k.bgColor === 0) return k;
+
+    const invert = (color) => ((color & 0x000000) | (~color & 0xFFFFFF));
+    const color = colors[k.bgColor];
+    
+    const invertedColorCode =`#${invert(parseInt(color.substring(1), 16))
+      .toString(16)
+      .padStart(6, '0')
+      .toUpperCase()}`;
+
+    const pixelMatrixColor = colors.indexOf(nearestColor(invertedColorCode));
+    
+    k.bgColor = pixelMatrixColor;
+
+    return k;
+  }));
+
+  appendUndo();
 }
 
 function undo() {

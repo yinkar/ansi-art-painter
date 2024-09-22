@@ -53,6 +53,9 @@ let takingPhoto = false;
 
 const randomName = () => `${(+new Date()) % 1000}${Math.floor(Math.random() * 100)}`;
 
+const undoStack = [];
+const redoStack = [];
+
 for (let i = 0, l = colors.length; i < l; i++) {
   const cpCell = document.createElement("div");
   cpCell.classList.add("color-palette-cell");
@@ -151,32 +154,38 @@ const importButton = document.querySelector("#import-button");
 const exportButton = document.querySelector("#export-button");
 const saveButton = document.querySelector("#save-button");
 const saveAsImageButton = document.querySelector("#save-as-image-button");
+const otherButton = document.querySelector("#other-button");
+const flipHorizontallyButton = document.querySelector("#flip-horizontally-button");
+const flipVerticallyButton = document.querySelector("#flip-vertically-button");
+const rotateRightButton = document.querySelector("#rotate-right-button");
+const rotateLeftButton = document.querySelector("#rotate-left-button");
 
-clearButton.addEventListener("click", function () {
-  if (!confirm('Whole drawing will be deleted! Are you sure?')) {
-    return;
-  }
-  pixelMatrix = fillPixelMatrix();
+const undoButton = document.querySelector("#undo-button");
+const redoButton = document.querySelector("#redo-button");
 
-  cacheMatrix();
-});
+const otherButtons = document.querySelector(".other-buttons");
+
+clearButton.addEventListener("click", clear);
 importButton.addEventListener("click", importImage);
 exportButton.addEventListener("click", exportANSI);
 saveButton.addEventListener("click", saveANSI);
-saveAsImageButton.addEventListener("click", function (e) {
-  takingPhoto = true;
-  
-  setTimeout(() => {
-    const downloader = document.querySelector('#downloader');
-    downloader.href = document.querySelector('canvas.p5Canvas').toDataURL();
-    downloader.download = `${randomName()}-art.png`;
-    downloader.click();
+saveAsImageButton.addEventListener("click", saveAsImage, false);
+otherButton.addEventListener("click", () => {
+  otherButtons.dataset.open = (
+    otherButtons.dataset.open === 'true' ? false : true
+  );
+});
+flipHorizontallyButton.addEventListener("click", flipHorizontally);
+flipVerticallyButton.addEventListener("click", flipVertically);
+rotateRightButton.addEventListener("click", rotateRight);
+rotateLeftButton.addEventListener("click", () => {
+    [ 1, 2, 3 ].forEach(() => rotateRight(true));
+    appendUndo();
+  }
+);
 
-    setTimeout(() => {
-      takingPhoto = false;
-    }, 1000)
-  }, 500);
-}, false);
+undoButton.addEventListener('click', undo);
+redoButton.addEventListener('click', redo);
 
 const toolsElements = document.querySelectorAll('.tool-button');
 
@@ -218,6 +227,16 @@ function changeTool() {
   currentTool = tools[this.dataset.tool];
 }
 
+function clear() {
+  if (!confirm('Whole drawing will be deleted! Are you sure?')) {
+    return;
+  }
+  pixelMatrix = fillPixelMatrix();
+
+  cacheMatrix();
+  appendUndo();
+}
+
 let cnv;
 
 async function importImage() {
@@ -253,9 +272,8 @@ async function importImage() {
         pixelMatrix[j][i] = { bgColor: colors.indexOf(nearestColor(hexCode)) };
       }
     }
-
-
   };
+  appendUndo();
 }
 
 // cols: Width of the image representing total number of columns
@@ -296,11 +314,94 @@ function cacheMatrix() {
   window.localStorage.setItem('cache', JSON.stringify(pixelMatrix));
 }
 
+function saveAsImage() {
+  takingPhoto = true;
+  
+  setTimeout(() => {
+    const downloader = document.querySelector('#downloader');
+    downloader.href = document.querySelector('canvas.p5Canvas').toDataURL();
+    downloader.download = `${randomName()}-art.png`;
+    downloader.click();
+
+    setTimeout(() => {
+      takingPhoto = false;
+    }, 1000)
+  }, 500);
+}
+
+function flipHorizontally() {
+  pixelMatrix = pixelMatrix.map(k => k.reverse());
+  appendUndo();
+}
+
+function flipVertically() {
+  pixelMatrix = pixelMatrix.reverse();
+  appendUndo();
+}
+
+function rotateRight(reverse = false) {
+  const transposedMatrix = pixelMatrix[0].map((_, i) => pixelMatrix.map(row => row[i]));
+  const rotatedMatrix = transposedMatrix.map(row => row.reverse());
+
+  pixelMatrix = rotatedMatrix;
+  
+  if (!reverse) {
+    appendUndo();
+  }
+}
+
+function undo() {
+  if (undoStack.length > 0) {
+    redoStack.push(JSON.stringify(pixelMatrix));
+    pixelMatrix = JSON.parse(undoStack.pop());
+  }
+  checkUndoRedoButtons();
+}
+
+function redo() {
+  if (redoStack.length > 0) {
+    undoStack.push(JSON.stringify(pixelMatrix));
+    pixelMatrix = JSON.parse(redoStack.pop());
+  }
+  checkUndoRedoButtons();
+}
+
+function checkUndoRedoButtons() {
+  if (undoStack.length > 0) {
+    undoButton.classList.remove('disabled');
+  }
+  else {
+    undoButton.classList.add('disabled');
+  }
+
+  if (redoStack.length > 0) {
+    redoButton.classList.remove('disabled');
+  }
+  else {
+    redoButton.classList.add('disabled');
+  }
+}
+
+function appendUndo() {
+  undoStack.push(JSON.stringify(pixelMatrix));
+  clearRedo();
+
+  if (undoStack.length > 5) {
+    undoStack.shift();
+  }
+}
+
+function clearRedo() {
+  redoStack.length = 0;
+}
+
 const sketch = function (p5) {
   const getPositions = () => getCellPosition(
     p5.mouseX - offset.width,
     p5.mouseY - offset.height
   );
+
+  const isOnCanvas = () => p5.mouseX < p5.width && p5.mouseX > 0 && p5.mouseY < p5.height && p5.mouseY > 0;
 
   p5.setup = function () {
     cnv = p5.createCanvas(512, 512);
@@ -344,8 +445,9 @@ const sketch = function (p5) {
           );
         }
         else {
-          p5.fill(110);
-          p5.stroke(80);
+          // Empty cell
+          p5.fill(160);
+          p5.stroke(120);
           p5.rect(
             j * cellSize.width + offset.width,
             i * cellSize.height + offset.width,
@@ -353,7 +455,7 @@ const sketch = function (p5) {
             cellSize.height
           );
           p5.noStroke();
-          p5.fill(150);
+          p5.fill(210);
           p5.rect(
             j * cellSize.width + offset.width + 1,
             i * cellSize.height + offset.width + 1,
@@ -404,7 +506,7 @@ const sketch = function (p5) {
       p5.cursor(p5.ARROW);
     }
 
-    if (p5.frameCount % 400 === 0) {
+    if (p5.frameCount % 300 === 0) {
       cacheMatrix();
     }
   };
@@ -447,6 +549,16 @@ const sketch = function (p5) {
 
       floodFill(positions.x, positions.y, pixelMatrix[positions.y][positions.x].bgColor, currentColor.id);
     }
+  };
+
+  p5.mousePressed = function() {
+    if (isOnCanvas()) {
+      appendUndo();
+    }
+  };
+
+  p5.mouseReleased = function() {
+    checkUndoRedoButtons();
   };
 }
 

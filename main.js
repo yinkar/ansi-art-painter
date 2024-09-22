@@ -46,10 +46,12 @@ let currentTool = tools.PENCIL;
 let lastTool = tools.PENCIL;
 
 const colorPalette = document.querySelector(".color-palette");
-
 const colorPaletteMagnifier = document.querySelector("#color-palette-magnifier");
-
 const currentBgColorElement = document.querySelector(".current-bg-color");
+
+let takingPhoto = false;
+
+const randomName = () => `${(+new Date()) % 1000}${Math.floor(Math.random() * 100)}`;
 
 for (let i = 0, l = colors.length; i < l; i++) {
   const cpCell = document.createElement("div");
@@ -79,8 +81,8 @@ function colorCellEvent() {
 
 function generateColor(id) {
   return colorTemplates.bgColorTemplate
-      .replace("{color}", id)
-      .replace("{character}", currentCharacter);
+    .replace("{color}", id)
+    .replace("{character}", currentCharacter);
 }
 
 let pixelMatrix = [];
@@ -95,15 +97,15 @@ function exportANSI(e) {
   let output = "";
 
   for (let i = 0; i < dimensions.height; i++) {
-      for (let j = 0; j < dimensions.width; j++) {
-          if (pixelMatrix[i][j].bgColor !== 0) {
-              output += generateColor(pixelMatrix[i][j].bgColor).repeat(2);
-          }
-          else {
-              output += " ".repeat(2);
-          }
+    for (let j = 0; j < dimensions.width; j++) {
+      if (pixelMatrix[i][j].bgColor !== 0) {
+        output += generateColor(pixelMatrix[i][j].bgColor).repeat(2);
       }
-      output += "\n";
+      else {
+        output += " ".repeat(2);
+      }
+    }
+    output += "\n";
   }
 
   outputElement.value = output;
@@ -112,12 +114,12 @@ function exportANSI(e) {
 }
 
 function saveANSI() {
-  stringToFile(exportANSI(), 'ans', `art-${(+new Date()) % 1000}${Math.floor(Math.random() * 100)}.ans`);
+  stringToFile(exportANSI(), 'ans', `${randomName()}-art.ans`);
 }
 
 function stringToFile(content, type, name) {
   const blob = new Blob([content], {
-      type: type
+    type: type
   });
   const link = document.createElement('a');
   link.download = name;
@@ -132,32 +134,49 @@ function fillPixelMatrix() {
   let tempMatrix = [];
 
   for (let i = 0; i < dimensions.height; i++) {
-      tempMatrix.push([]);
+    tempMatrix.push([]);
 
-      for (let j = 0; j < dimensions.height; j++) {
-          tempMatrix[i].push({
-              bgColor: 0,
-          });
-      }
+    for (let j = 0; j < dimensions.height; j++) {
+      tempMatrix[i].push({
+        bgColor: 0,
+      });
+    }
   }
 
   return tempMatrix;
 }
 
 const clearButton = document.querySelector("#clear-button");
-const exportButton = document.querySelector("#export-button");
 const importButton = document.querySelector("#import-button");
+const exportButton = document.querySelector("#export-button");
 const saveButton = document.querySelector("#save-button");
+const saveAsImageButton = document.querySelector("#save-as-image-button");
 
-clearButton.addEventListener("click", function() {
-  if (!confirm('Are you sure?')) {
-      return;
+clearButton.addEventListener("click", function () {
+  if (!confirm('Whole drawing will be deleted! Are you sure?')) {
+    return;
   }
   pixelMatrix = fillPixelMatrix();
+
+  cacheMatrix();
 });
-exportButton.addEventListener("click", exportANSI);
 importButton.addEventListener("click", importImage);
+exportButton.addEventListener("click", exportANSI);
 saveButton.addEventListener("click", saveANSI);
+saveAsImageButton.addEventListener("click", function (e) {
+  takingPhoto = true;
+  
+  setTimeout(() => {
+    const downloader = document.querySelector('#downloader');
+    downloader.href = document.querySelector('canvas.p5Canvas').toDataURL();
+    downloader.download = `${randomName()}-art.png`;
+    downloader.click();
+
+    setTimeout(() => {
+      takingPhoto = false;
+    }, 1000)
+  }, 500);
+}, false);
 
 const toolsElements = document.querySelectorAll('.tool-button');
 
@@ -191,7 +210,7 @@ document.addEventListener('DOMContentLoaded', () => {
 function changeTool() {
   lastTool = currentTool;
   toolsElements.forEach(e => {
-      e.classList.remove('selected');
+    e.classList.remove('selected');
   });
 
   this.classList.add('selected');
@@ -209,33 +228,33 @@ async function importImage() {
   await fetch(`https://api.allorigins.win/get?url=${imgUrl}`).then(r => r.json()).then(d => img.src = d.contents);
 
   img.onload = function () {
-      const canvas = document.createElement("canvas");
-      canvas.width = img.width;
-      canvas.height = img.height;
-      let ctx = canvas.getContext(
-        "2d"
-      );
-      ctx.drawImage(img, 0, 0);
+    const canvas = document.createElement("canvas");
+    canvas.width = img.width;
+    canvas.height = img.height;
+    let ctx = canvas.getContext(
+      "2d"
+    );
+    ctx.drawImage(img, 0, 0);
 
-      const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-      data = imgData.data;
-      for (let i=0; i<dimensions.height; i++) {
-          for (let j=0; j<dimensions.height; j++) {
-              let cols = canvas.width;
-              let offsetX = Math.floor(i*canvas.height/dimensions.height);
-              let offsetY = Math.floor(j*canvas.width/dimensions.height);
-              // call the method to get the r, g, b, a values for current pixel
-              let c = extractPixelColor(cols, offsetY, offsetX);
-              // build a colour string for 
-              let colour = `rgb(${c.red}, ${c.green}, ${c.blue})` ;
-              let hexCode = `#${[c.red, c.green, c.blue]
-                  .map((x) => x.toString(16).padStart(2, "0"))
-                  .join("")}`;
-              pixelMatrix[j][i] = {bgColor:colors.indexOf(nearestColor(hexCode))};
-          }    
+    const imgData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+    data = imgData.data;
+    for (let i = 0; i < dimensions.height; i++) {
+      for (let j = 0; j < dimensions.height; j++) {
+        let cols = canvas.width;
+        let offsetX = Math.floor(i * canvas.height / dimensions.height);
+        let offsetY = Math.floor(j * canvas.width / dimensions.height);
+        // call the method to get the r, g, b, a values for current pixel
+        let c = extractPixelColor(cols, offsetY, offsetX);
+        // build a colour string for 
+        let colour = `rgb(${c.red}, ${c.green}, ${c.blue})`;
+        let hexCode = `#${[c.red, c.green, c.blue]
+          .map((x) => x.toString(16).padStart(2, "0"))
+          .join("")}`;
+        pixelMatrix[j][i] = { bgColor: colors.indexOf(nearestColor(hexCode)) };
       }
-      
-        
+    }
+
+
   };
 }
 
@@ -249,23 +268,23 @@ const extractPixelColor = (cols, x, y) => {
   let position = pixel * 4;
   // the rgba value of current pixel will be the following
   return {
-      red: data[position],
-      green: data[position + 1],
-      blue: data[position + 2],
-      alpha: data[position + 3],
+    red: data[position],
+    green: data[position + 1],
+    blue: data[position + 2],
+    alpha: data[position + 3],
   };
 };
 
 const hexToRgb = hex => hex.slice(1).replace(/^(.)(.)(.)$/gi, "$1$1$2$2$3$3").match(/.{2}/g).map(c => parseInt(c, 16));
 const distance = (a, b) => Math.sqrt(Math.pow(a[0] - b[0], 2) + Math.pow(a[1] - b[1], 2) + Math.pow(a[2] - b[2], 2));
 const nearestColor = colorHex =>
-colors.reduce((a,v,i,arr) =>
-  a = distance(hexToRgb(colorHex), hexToRgb(v)) < a[0] ? [distance(hexToRgb(colorHex), hexToRgb(v)), v] : a, [Number.POSITIVE_INFINITY, colors[0]])[1];
+  colors.reduce((a, v, i, arr) =>
+    a = distance(hexToRgb(colorHex), hexToRgb(v)) < a[0] ? [distance(hexToRgb(colorHex), hexToRgb(v)), v] : a, [Number.POSITIVE_INFINITY, colors[0]])[1];
 
 function getCellPosition(x, y) {
   return {
-      x: parseInt(x / cellSize.width),
-      y: parseInt(y / cellSize.height),
+    x: parseInt(x / cellSize.width),
+    y: parseInt(y / cellSize.height),
   };
 }
 
@@ -273,138 +292,156 @@ function setCurrentBgElement() {
   currentBgColorElement.style.backgroundColor = colors[currentColor.id];
 }
 
-const sketch = function(p5) {
+function cacheMatrix() {
+  window.localStorage.setItem('cache', JSON.stringify(pixelMatrix));
+}
+
+const sketch = function (p5) {
   const getPositions = () => getCellPosition(
-      p5.mouseX - offset.width,
-      p5.mouseY - offset.height
+    p5.mouseX - offset.width,
+    p5.mouseY - offset.height
   );
 
-  p5.setup = function() {
+  p5.setup = function () {
     cnv = p5.createCanvas(512, 512);
     p5.background(25);
-    
+
     pixelMatrix = fillPixelMatrix();
 
     if (window.localStorage.getItem('cache') !== null) {
       pixelMatrix = JSON.parse(window.localStorage.getItem('cache'));
     }
-    
+
     document.body.classList.add('render');
   };
-  
-  p5.draw = function() {
+
+  p5.draw = function () {
     for (let i = 0; i < dimensions.height; i++) {
-        for (let j = 0; j < dimensions.width; j++) {
-            p5.stroke(100);
-            if (pixelMatrix[i][j].bgColor !== 0) {
-                p5.fill(p5.color(colors[pixelMatrix[i][j].bgColor]));
-                  p5.rect(
-                    j * cellSize.width + offset.width,
-                    i * cellSize.height + offset.width,
-                    cellSize.width,
-                    cellSize.height
-                );
-            }
-            else {
-                p5.fill(110);
-                p5.stroke(80);
-                p5.rect(
-                    j * cellSize.width + offset.width,
-                    i * cellSize.height + offset.width,
-                    cellSize.width,
-                    cellSize.height
-                );
-                p5.noStroke();
-                p5.fill(150);
-                p5.rect(
-                    j * cellSize.width + offset.width + 1,
-                    i * cellSize.height + offset.width + 1,
-                    cellSize.width / 2 - 1,
-                    cellSize.height / 2 - 1
-                );
-                p5.rect(
-                    j * cellSize.width + offset.width + cellSize.width / 2 + 1,
-                    i * cellSize.height + offset.width + cellSize.height / 2 + 1,
-                    cellSize.width / 2 - 1,
-                    cellSize.height / 2 - 1
-                );
-            }
+      for (let j = 0; j < dimensions.width; j++) {
+        if (takingPhoto) {
+          p5.noStroke();
         }
+        else {
+          p5.stroke(100);
+        }
+
+        if (pixelMatrix[i][j].bgColor !== 0) {
+          p5.fill(p5.color(colors[pixelMatrix[i][j].bgColor]));
+          p5.rect(
+            j * cellSize.width + offset.width,
+            i * cellSize.height + offset.width,
+            cellSize.width,
+            cellSize.height
+          );
+        }
+        else if (takingPhoto) {
+          p5.noStroke();
+          p5.drawingContext.clearRect(
+            j * cellSize.width + offset.width,
+            i * cellSize.height + offset.width,
+            cellSize.width,
+            cellSize.height
+          );
+        }
+        else {
+          p5.fill(110);
+          p5.stroke(80);
+          p5.rect(
+            j * cellSize.width + offset.width,
+            i * cellSize.height + offset.width,
+            cellSize.width,
+            cellSize.height
+          );
+          p5.noStroke();
+          p5.fill(150);
+          p5.rect(
+            j * cellSize.width + offset.width + 1,
+            i * cellSize.height + offset.width + 1,
+            cellSize.width / 2 - 1,
+            cellSize.height / 2 - 1
+          );
+          p5.rect(
+            j * cellSize.width + offset.width + cellSize.width / 2 + 1,
+            i * cellSize.height + offset.width + cellSize.height / 2 + 1,
+            cellSize.width / 2 - 1,
+            cellSize.height / 2 - 1
+          );
+        }
+      }
     }
 
     const positions = getPositions();
-  
+
     if (
-        positions.y >= 0 &&
-        positions.y < dimensions.height &&
-        positions.x >= 0 &&
-        positions.x < dimensions.width
+      positions.y >= 0 &&
+      positions.y < dimensions.height &&
+      positions.x >= 0 &&
+      positions.x < dimensions.width
     ) {
-        p5.cursor(p5.HAND);
-  
-        if (p5.mouseIsPressed) {
-            if (p5.mouseButton === p5.LEFT) {
-                switch (currentTool) {
-                    case tools.PENCIL:
-                        pixelMatrix[positions.y][positions.x].bgColor = currentColor.id;
-                    break;
-                    case tools.ERASER:
-                        pixelMatrix[positions.y][positions.x].bgColor = 0;
-                    break;
-                    case tools.COLOR_PICKER:
-                        setCurrentColor(pixelMatrix[positions.y][positions.x].bgColor);
-                        
-                        toolsElements[tools.PENCIL].click();
-                    break;
-                }
-            }
-            else {
-                pixelMatrix[positions.y][positions.x].bgColor = 0;
-            }
+      p5.cursor(p5.HAND);
+
+      if (p5.mouseIsPressed) {
+        if (p5.mouseButton === p5.LEFT) {
+          switch (currentTool) {
+            case tools.PENCIL:
+              pixelMatrix[positions.y][positions.x].bgColor = currentColor.id;
+              break;
+            case tools.ERASER:
+              pixelMatrix[positions.y][positions.x].bgColor = 0;
+              break;
+            case tools.COLOR_PICKER:
+              setCurrentColor(pixelMatrix[positions.y][positions.x].bgColor);
+
+              toolsElements[tools.PENCIL].click();
+              break;
+          }
         }
+        else {
+          pixelMatrix[positions.y][positions.x].bgColor = 0;
+        }
+      }
     } else {
-        p5.cursor(p5.ARROW);
+      p5.cursor(p5.ARROW);
     }
 
     if (p5.frameCount % 400 === 0) {
-      window.localStorage.setItem('cache', JSON.stringify(pixelMatrix));
-    }
-  };
-  
-  p5.keyPressed = function() {
-    if (p5.keyCode === p5.CONTROL) {
-        lastTool = currentTool;
-        toolsElements[tools.COLOR_PICKER].click();
-    }
-  };
-  
-  p5.keyReleased = function() {
-    if (p5.keyCode === p5.CONTROL) {
-        toolsElements[tools.PENCIL].click();
+      cacheMatrix();
     }
   };
 
-  p5.mouseClicked = function() {
+  p5.keyPressed = function () {
+    if (p5.keyCode === p5.CONTROL) {
+      lastTool = currentTool;
+      toolsElements[tools.COLOR_PICKER].click();
+    }
+  };
+
+  p5.keyReleased = function () {
+    if (p5.keyCode === p5.CONTROL) {
+      toolsElements[tools.PENCIL].click();
+    }
+  };
+
+  p5.mouseClicked = function () {
     const positions = getPositions();
 
     if (p5.mouseButton === p5.LEFT && currentTool === tools.BUCKET) {
       const floodFill = (x, y, targetColor, newColor) => {
-        if (parseInt(newColor) === 0) return;
-        else if (parseInt(targetColor) === parseInt(newColor)) return;
+        if (parseInt(targetColor) === parseInt(newColor)) return;
         else if (pixelMatrix[y] === undefined) return;
         else if (pixelMatrix[y][x] === undefined) return;
         else if (parseInt(pixelMatrix[y][x].bgColor) !== parseInt(targetColor)) return;
-        else {                            
+        else {
           pixelMatrix[y][x].bgColor = newColor;
-  
-          floodFill(x, y-1, targetColor, newColor);
-          floodFill(x, y+1, targetColor, newColor);
-          floodFill(x-1, y, targetColor, newColor);
-          floodFill(x+1, y, targetColor, newColor);
+
+          floodFill(x, y - 1, targetColor, newColor);
+          floodFill(x, y + 1, targetColor, newColor);
+          floodFill(x - 1, y, targetColor, newColor);
+          floodFill(x + 1, y, targetColor, newColor);
           return;
         }
       };
-  
+
       if (pixelMatrix[positions.y] === undefined) return;
       else if (pixelMatrix[positions.y][positions.x] === undefined) return;
 

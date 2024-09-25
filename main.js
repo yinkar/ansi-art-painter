@@ -157,6 +157,7 @@ const flipVerticallyButton = document.querySelector("#flip-vertically-button");
 const rotateRightButton = document.querySelector("#rotate-right-button");
 const rotateLeftButton = document.querySelector("#rotate-left-button");
 const invertButton = document.querySelector("#invert-button");
+const grayscaleButton = document.querySelector("#grayscale-button");
 
 const undoButton = document.querySelector("#undo-button");
 const redoButton = document.querySelector("#redo-button");
@@ -186,6 +187,7 @@ rotateLeftButton.addEventListener("click", () => {
   }
 );
 invertButton.addEventListener("click", invertColors);
+grayscaleButton.addEventListener("click", grayscale);
 
 undoButton.addEventListener('click', undo);
 redoButton.addEventListener('click', redo);
@@ -247,7 +249,12 @@ async function importImage() {
   const img = document.createElement('img');
   img.crossOrigin = "Anonymous";
 
-  await fetch(`https://api.allorigins.win/get?url=${imgUrl}`).then(r => r.json()).then(d => img.src = d.contents);
+  if (imgUrl.includes('base64,')) {
+    img.src = imgUrl;
+  }
+  else {
+    await fetch(`https://api.allorigins.win/get?url=${imgUrl}`).then(r => r.json()).then(d => img.src = d.contents);
+  }
 
   img.onload = function () {
     const canvas = document.createElement("canvas");
@@ -319,6 +326,9 @@ function cacheMatrix() {
 
 function saveAsImage() {
   takingPhoto = true;
+
+  const theCanvas = document.querySelector('canvas#the-canvas');
+  theCanvas.classList.add('saving');
   
   setTimeout(() => {
     const downloader = document.querySelector('#downloader');
@@ -328,6 +338,7 @@ function saveAsImage() {
 
     setTimeout(() => {
       takingPhoto = false;
+      theCanvas.classList.remove('saving');
     }, 1000)
   }, 500);
 }
@@ -363,6 +374,28 @@ function invertColors() {
       .toUpperCase()}`;
 
     const pixelMatrixColor = colors.indexOf(nearestColor(invertedColorCode));
+    
+    j.bgColor = pixelMatrixColor;
+
+    return j;
+  }));
+
+  appendUndo();
+}
+
+
+function grayscale() {
+  pixelMatrix = pixelMatrix.map(i => i.map(j => {
+    if (j.bgColor === 0) return j;
+    const color = colors[j.bgColor];
+    
+    const grayscaleColorCode = toGrayScale(color);
+
+    console.log(grayscaleColorCode);
+
+    if (grayscaleColorCode === false) return j;
+
+    const pixelMatrixColor = colors.indexOf(nearestColor(grayscaleColorCode));
     
     j.bgColor = pixelMatrixColor;
 
@@ -418,6 +451,24 @@ function clearRedo() {
   redoStack.length = 0;
 }
 
+const rgbToHex = (r, g, b) => {
+  return "#" + (1 << 24 | r << 16 | g << 8 | b).toString(16).slice(1);
+}
+
+function toGrayScale(hex) {
+  const rgb = hexToRgb(hex);
+
+  if (rgb.every(e => e === rgb[0])) return false;
+
+  let gray = [];
+
+  [1, 2, 3].forEach(e => {
+    gray.push([.7, .99, .51].reduce((a, v, i) => a + v * rgb[i], 0)/3);
+  });
+
+  return rgbToHex(...gray);
+}
+
 window.addEventListener('keydown', function(e) {
   if (e.ctrlKey && e.code === 'KeyZ') {
     undo();
@@ -437,6 +488,8 @@ const sketch = function (p5) {
 
   p5.setup = function () {
     cnv = p5.createCanvas(512, 512);
+    cnv.id('the-canvas');
+    
     p5.background(25);
 
     pixelMatrix = fillPixelMatrix();

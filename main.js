@@ -388,15 +388,11 @@ function grayscale() {
   pixelMatrix = pixelMatrix.map(i => i.map(j => {
     if (j.bgColor === 0) return j;
     const color = colors[j.bgColor];
-    
     const grayscaleColorCode = toGrayScale(color);
-
-    console.log(grayscaleColorCode);
 
     if (grayscaleColorCode === false) return j;
 
     const pixelMatrixColor = colors.indexOf(nearestColor(grayscaleColorCode));
-    
     j.bgColor = pixelMatrixColor;
 
     return j;

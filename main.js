@@ -246,6 +246,10 @@ let cnv;
 
 async function importImage() {
   const imgUrl = window.prompt('Enter image URL');
+
+  const theCanvas = document.querySelector('canvas#the-canvas');
+  theCanvas.classList.add('importing');
+
   const img = document.createElement('img');
   img.crossOrigin = "Anonymous";
 
@@ -253,7 +257,13 @@ async function importImage() {
     img.src = imgUrl;
   }
   else {
-    await fetch(`https://api.allorigins.win/get?url=${imgUrl}`).then(r => r.json()).then(d => img.src = d.contents);
+    await fetch(`https://api.allorigins.win/get?url=${imgUrl}`)
+      .then(r => r.json())
+      .then(d => img.src = d.contents)
+      .catch(e => {
+        theCanvas.classList.remove('importing');
+        alert('An error occurred.');
+      });
   }
 
   img.onload = function () {
@@ -282,6 +292,8 @@ async function importImage() {
         pixelMatrix[j][i] = { bgColor: colors.indexOf(nearestColor(hexCode)) };
       }
     }
+
+    theCanvas.classList.remove('importing');
   };
   appendUndo();
 }
@@ -466,11 +478,16 @@ function toGrayScale(hex) {
 }
 
 window.addEventListener('keydown', function(e) {
-  if (e.ctrlKey && e.code === 'KeyZ') {
-    undo();
-  }
-  else if (e.ctrlKey && e.code === 'KeyY') {
+  const commandKey = () => navigator.userAgentData.platform === 'macOS' ? e.metaKey : e.ctrlKey;
+
+  if (
+    (commandKey() && e.shiftKey && e.code === 'KeyZ') ||
+    commandKey() && e.code === 'KeyY'
+  ) {
     redo();
+  }
+  else if (commandKey() && e.code === 'KeyZ') {
+    undo();
   }
 });
 

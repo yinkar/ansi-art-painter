@@ -43,10 +43,27 @@ canvas#the-canvas {
   border: 2px solid #eee;
   box-shadow: 0 2px 10px #000a;
   transition: 100ms ease all; 
+  background-color: #fff;
 }
 
 canvas#the-canvas.saving {
   filter: contrast(0) brightness(2);
+}
+
+canvas#the-canvas.importing {
+  animation: blinking 500ms ease-in-out infinite;
+}
+
+@keyframes blinking {
+  0% {
+    filter: brightness(0.7);
+  }
+  70% {
+    filter: brightness(1.1);
+  }
+  100% {
+    filter: brightness(0.7);
+  }
 }
 
 .color-palette {

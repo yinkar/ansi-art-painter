@@ -247,6 +247,8 @@ let cnv;
 async function importImage() {
   const imgUrl = window.prompt('Enter image URL');
 
+  if (imgUrl === null) return;
+
   const theCanvas = document.querySelector('canvas#the-canvas');
   theCanvas.classList.add('importing');
 

@@ -12,7 +12,7 @@ const colorTemplates = {
   fgColorTemplate: `[${colorTypes.FG};5;{color}}m{character}[m`,
 };
 
-let currentCharacter = " ";
+let currentCharacter = "  ";
 
 const currentColor = {
   id: 255,
@@ -103,7 +103,7 @@ function exportANSI(e) {
 
   for (let i = 0; i < dimensions.height; i++) {
     for (let j = 0; j < dimensions.width; j++) {
-      output += generateColor(pixelMatrix[i][j].bgColor).repeat(2);
+      output += generateColor(pixelMatrix[i][j].bgColor);
     }
     output += "\n";
   }
